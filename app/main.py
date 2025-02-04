@@ -14,7 +14,3 @@ def root():
 def healthcheck():
     return {"status": "ok"}
 
-@app.post("/recommend", response_model=RecommendationResponse)
-def recommend(request: RecommendationRequest):
-    recommendations = generate_recommendations(request.user_id, request.history)
-    return {"user_id": request.user_id, "recommendations": recommendations}
