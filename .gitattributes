@@ -1,2 +1,0 @@
-modelo_lstm/melhor_modelo.h5 filter=lfs diff=lfs merge=lfs -text
-melhor_modelo_lightfm.pkl filter=lfs diff=lfs merge=lfs -text
