@@ -34,7 +34,7 @@ IMAGE_TAG=latest
 
 ### Passos para executar:
 
-1. Abra o Docker e abra o Git Bash na pasta raiz do projeto
+1. Abra o Docker e, em seguida, abra o Git Bash na pasta raiz do projeto.
 
 2. **Torne o script executável (se necessário):**
    ```bash
