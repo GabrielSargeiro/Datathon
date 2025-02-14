@@ -17,6 +17,9 @@ __pycache__/
 # Logs
 *.log
 
+# Arquivos gerados automaticamente
+task_definition.json
+
 # Modelos ou arquivos grandes que não queira versionar
 model.pkl
 
