@@ -1,0 +1,29 @@
+# Arquivos e pastas de ambiente virtual
+venv/
+.venv/
+.env/
+.env
+
+# Configurações de IDE (Ex.: PyCharm, IntelliJ, VSCode, etc.)
+.idea/
+.vscode/
+*.iml
+
+# Arquivos Python compilados ou caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs
+*.log
+
+# Modelos ou arquivos grandes que não queira versionar
+model.pkl
+
+# CSV
+itens/
+treino/
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
