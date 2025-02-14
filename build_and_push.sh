@@ -207,7 +207,7 @@ PUBLIC_IP=$(aws ec2 describe-network-interfaces --network-interface-ids "$ENI_ID
 if [ -z "$PUBLIC_IP" ] || [ "$PUBLIC_IP" = "None" ]; then
   echo "Não foi possível obter o IP público da ENI."
 else
-  echo "Link para API: http://$PUBLIC_IP:5000/recommend"
+  echo "IP público: $PUBLIC_IP "
 fi
 
 echo "======================================"
