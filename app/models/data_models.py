@@ -1,9 +1,9 @@
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List
 
 class RecommendationInput(BaseModel):
-    user_id: int
-    history: List[int]  # IDs das matérias que o usuário já viu
+    user_id: str
+    history: List[int]  # ou List[str], dependendo do formato dos IDs do histórico
 
 class RecommendationOutput(BaseModel):
-    recommendations: List[Dict]  # Cada recomendação será um objeto com "Page" e "Title"
+    recommendations: List[dict]  # ou ajuste conforme o retorno
