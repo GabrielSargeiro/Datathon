@@ -1,0 +1,35 @@
+# Arquivos e pastas de ambiente virtual
+venv/
+.venv/
+.env/
+.env
+
+# Configurações de IDE (Ex.: PyCharm, IntelliJ, VSCode, etc.)
+.idea/
+.vscode/
+*.iml
+
+# Arquivos Python compilados ou caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignorar arquivos __init__.py (não versiona os arquivos de inicialização dos pacotes)
+**/__init__.py
+
+# Logs
+*.log
+
+# Arquivos gerados automaticamente
+task_definition.json
+
+# Modelos ou arquivos grandes que não queira versionar
+model.pkl
+
+# CSV e dados (caso esses dados não precisem ser versionados)
+itens/
+treino/
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
