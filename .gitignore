@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 # Arquivos e pastas de ambiente virtual
 venv/
@@ -16,11 +17,19 @@ venv/
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,terraform
 
 
+=======
+# Created by https://www.toptal.com/developers/gitignore/api/python,terraform
+# Edit at https://www.toptal.com/developers/gitignore?templates=python,terraform
+
+### Python ###
+# Byte-compiled / optimized / DLL files
+>>>>>>> 0004de09c8486b20262eb14caa64ab7736e847d7
 __pycache__/
 *.py[cod]
 *$py.class
 
 
+<<<<<<< HEAD
 # Ignorar arquivos __init__.py (não versiona os arquivos de inicialização dos pacotes)
 **/__init__.py
 
@@ -41,6 +50,8 @@ treino/
 .DS_Store
 Thumbs.db
 
+=======
+>>>>>>> 0004de09c8486b20262eb14caa64ab7736e847d7
 # C extensions
 *.so
 
@@ -96,6 +107,10 @@ cover/
 *.pot
 
 # Django stuff:
+<<<<<<< HEAD
+=======
+*.log
+>>>>>>> 0004de09c8486b20262eb14caa64ab7736e847d7
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -159,8 +174,15 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+<<<<<<< HEAD
 .venv
 env/
+=======
+.env
+.venv
+env/
+venv/
+>>>>>>> 0004de09c8486b20262eb14caa64ab7736e847d7
 ENV/
 env.bak/
 venv.bak/
@@ -246,6 +268,7 @@ terraform.rc
 
 
 
+
 app/models/modelo_lstm/
 
 
@@ -253,4 +276,5 @@ app/models/modelo_lstm/
 app/models/bases/
 apps/models/modelos/melhor_modelo_sasrec.h5
 app/models/modelos/melhor_modelo_lightfm.pkl
+apps/services/modelos/melhor_modelo_lightfm.pkl
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Etapa 1: Imagem base com suporte a GPU
 FROM tensorflow/tensorflow:latest-gpu
 
