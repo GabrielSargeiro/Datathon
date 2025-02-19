@@ -1,3 +1,5 @@
+import os
+
 from fastapi import APIRouter, HTTPException
 from app.models.data_models import RecommendationInput, RecommendationOutput
 from app.services.model import load_model, recommend_from_model  # usaremos load_model e parte da lógica de recomendação
@@ -5,6 +7,8 @@ import numpy as np
 from sklearn.metrics.pairwise import linear_kernel
 
 router = APIRouter(prefix="/recommendation", tags=["Recommendation"])
+
+diretorio_modelo = os.path.dirname(os.getcwd())
 
 # Carrega o modelo ao iniciar a aplicação
 try:
