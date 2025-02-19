@@ -29,7 +29,6 @@ __pycache__/
 *$py.class
 
 
-<<<<<<< HEAD
 # Ignorar arquivos __init__.py (não versiona os arquivos de inicialização dos pacotes)
 **/__init__.py
 
@@ -49,9 +48,6 @@ treino/
 # Arquivos de sistema
 .DS_Store
 Thumbs.db
-
-=======
->>>>>>> 0004de09c8486b20262eb14caa64ab7736e847d7
 # C extensions
 *.so
 
@@ -107,10 +103,6 @@ cover/
 *.pot
 
 # Django stuff:
-<<<<<<< HEAD
-=======
-*.log
->>>>>>> 0004de09c8486b20262eb14caa64ab7736e847d7
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -174,15 +166,12 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-<<<<<<< HEAD
+
+
 .venv
 env/
-=======
-.env
-.venv
-env/
-venv/
->>>>>>> 0004de09c8486b20262eb14caa64ab7736e847d7
+
+
 ENV/
 env.bak/
 venv.bak/
