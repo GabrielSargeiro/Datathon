@@ -96,7 +96,6 @@ cover/
 *.pot
 
 # Django stuff:
-*.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -160,10 +159,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
-venv/
 ENV/
 env.bak/
 venv.bak/
@@ -247,10 +244,13 @@ terraform.rc
 
 # End of https://www.toptal.com/developers/gitignore/api/python,terraform
 
-bases/
-modelo_lstm/melhor_modelo.h5
-melhor_modelo_lightfm.pkl
+
+
 app/models/modelo_lstm/
 
-.idea/
+
+
+app/models/bases/
+apps/models/melhor_modelo_sasrec.h5
+app/models/melhor_modelo_lightfm.pkl
 
