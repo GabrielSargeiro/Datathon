@@ -1,5 +1,5 @@
 from modelo_lightfm import treinar_modelo_feature
-from modelo_sequencial import treinar_modelo
+from app.services.modelo_sequencial import treinar_modelo
 from dados import tratar_dados, consolidar_treinos
 
 
