@@ -32,7 +32,6 @@ __pycache__/
 # Arquivos gerados automaticamente
 task_definition.json
 
-# Modelos ou arquivos grandes que não queira versionar
 model.pkl
 
 # CSV e dados (caso esses dados não precisem ser versionados)
@@ -64,8 +63,6 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-melhor_modelo_lightfm.pkl
-*.pkl
 *.h5
 # PyInstaller
 #  Usually these files are written by a python script from a template
