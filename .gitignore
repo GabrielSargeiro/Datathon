@@ -251,6 +251,6 @@ app/models/modelo_lstm/
 
 
 app/models/bases/
-apps/models/melhor_modelo_sasrec.h5
-app/models/melhor_modelo_lightfm.pkl
+apps/models/modelos/melhor_modelo_sasrec.h5
+app/models/modelos/melhor_modelo_lightfm.pkl
 
