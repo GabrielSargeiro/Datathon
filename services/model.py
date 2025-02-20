@@ -42,7 +42,7 @@ def filtrar_dados(dataframe):
 
     return dataframe
 
-caminho = os.path.dirname(os.path.dirname(os.getcwd()))
+caminho = os.getcwd()
 def tratamento_dataframe_consolidado():
     caminho_dados_tratados = os.path.join(caminho, "treino", "dados_tratados.csv")
 
@@ -176,7 +176,7 @@ def treinar_modelo_feature(num_epochs: int = 10, k: int = 5):
 
     if melhor_modelo:
         logging.info("Salvando o modelo treinado com melhor precisão.")
-        joblib.dump(melhor_modelo, 'modelos/melhor_modelo_lightfm.pkl')
+        joblib.dump(melhor_modelo, os.path.join("app", "artifacts", "melhor_modelo_lightfm.pkl"))
 
     logging.info("Treinamento concluído.")
     return melhor_modelo

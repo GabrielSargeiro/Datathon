@@ -1,15 +1,16 @@
 from fastapi import FastAPI
+from joblib import load
+from app.config import Config
 from app.routers import recommendation
 
-app = FastAPI(title="Recommender System API", version="1.0")
+app = FastAPI(title="Recommender System API", version=Config.API_VERSION)
 
-# Incluindo os endpoints da API
+model_data = load(Config.MODEL_PATH + "/melhor_modelo_lightfm.pkl")
+
+recommendation.model_data = model_data
+
 app.include_router(recommendation.router)
 
-'''@app.get("/")
-def root():
-    return {"message": "API is running!"}
-'''
 @app.get("/healthcheck")
 def healthcheck():
     return {"status": "ok"}

@@ -1,0 +1,9 @@
+fastapi==0.95.2
+uvicorn==0.22.0
+pydantic==1.10.21
+starlette==0.27.0
+joblib==1.4.2
+lightfm==1.17
+numpy==1.26.0
+pandas==2.2.3
+scikit-learn==1.6.0

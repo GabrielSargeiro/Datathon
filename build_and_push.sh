@@ -114,8 +114,8 @@ cat <<EOF > $TASK_DEF_FILE
     "requiresCompatibilities": [
         "FARGATE"
     ],
-    "cpu": "4096",
-    "memory": "8192"
+    "cpu": "2048",
+    "memory": "6144"
 }
 EOF
 echo "Arquivo task_definition.json gerado."
