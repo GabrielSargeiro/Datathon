@@ -115,7 +115,7 @@ cat <<EOF > $TASK_DEF_FILE
         "FARGATE"
     ],
     "cpu": "2048",
-    "memory": "6144"
+    "memory": "14336"
 }
 EOF
 echo "Arquivo task_definition.json gerado."
@@ -149,8 +149,8 @@ else
         echo "Erro ao atualizar serviço (ServiceNotActiveException provável)."
         echo "Excluindo o serviço $ECS_SERVICE..."
         aws ecs delete-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" --force
-        echo "Aguardando 10 segundos para a exclusão do serviço..."
-        sleep 10
+        echo "Aguardando 30 segundos para a exclusão do serviço..."
+        sleep 30
         echo "Recriando o serviço $ECS_SERVICE..."
         aws ecs create-service \
           --cluster "$ECS_CLUSTER" \
@@ -213,3 +213,36 @@ fi
 
 echo "======================================"
 echo "Processo de build, push e deploy concluído!"
+echo "======================================"
+
+# Evita a conversão de caminhos no Git Bash
+export MSYS_NO_PATHCONV=1
+
+LOG_GROUP="/ecs/datathon-task"
+
+echo "Iniciando busca do log 'Application startup complete' a cada 20 sec"
+MAX_ATTEMPTS=30
+attempt=1
+
+while [ $attempt -le $MAX_ATTEMPTS ]; do
+  START_TIME=$(($(date +%s) - 300))
+  LOG_OUTPUT=$(aws logs filter-log-events \
+    --log-group-name "$LOG_GROUP" \
+    --filter-pattern "Application startup complete" \
+    --start-time $((START_TIME * 1000)) \
+    --output text)
+
+  if echo "$LOG_OUTPUT" | grep -q "Application startup complete"; then
+      echo "Log encontrado: Application startup complete"
+      break
+  else
+      echo "Tentativa $attempt: Aguardando Application startup..."
+      sleep 20
+      attempt=$((attempt+1))
+  fi
+done
+
+if [ $attempt -gt $MAX_ATTEMPTS ]; then
+    echo "Log 'Application startup complete' não encontrado após $(($MAX_ATTEMPTS * 20)) segundos."
+    exit 1
+fi
