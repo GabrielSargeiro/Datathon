@@ -8,4 +8,4 @@ uvicorn==0.21.1
 matplotlib==3.7.2
 tqdm==4.64.1
 spacy==3.5.3
-#tqdm_joblib
+pyarrow==15.0.0

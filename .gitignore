@@ -6,6 +6,7 @@ venv/
 env/
 env.bak/
 venv.bak/
+!.env.example
 
 # ===== IDEs e Configurações de Editor =====
 .idea/
