@@ -43,7 +43,7 @@ Datathon/
 │   └── routers/
 │       └── recommendation.py  # Endpoints da API
 ├── workflow/                  
-│   ├── trainModel.py          # Lógica de treinamento do modelo TF-IDF/PLN + LightFM
+│   ├── trainModel.py          # Lógica de treinamento do modelo TF-IDF/PLN
 │   ├── trainLightfm.py        # Pipeline leve para treinamento incremental do LightFM
 │   ├── Dockerfile             # Dockerfile para o pipeline LightFM
 │   └── docker-compose.yml     # Docker-compose para o pipeline LightFM
