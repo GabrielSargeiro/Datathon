@@ -12,9 +12,7 @@ import matplotlib.pyplot as plt
 import string
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-# Baixa as stopwords sem mensagens de log
 nltk.download('stopwords', quiet=True)
-# Carrega o modelo spaCy para português
 nlp = spacy.load("pt_core_news_sm")
 
 # Cria a lista de stopwords combinada (NLTK)
@@ -28,15 +26,12 @@ def filtrar_textos(textos):
         for doc in tqdm(nlp.pipe(textos, batch_size=150, n_process=4),
                         total=len(textos),
                         desc="Filtrando tokens",
-                        bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [Elapsed: {elapsed}]"):
+                        bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [Elapsed: {elapsed}]"):
             tokens = []
             for token in doc:
-                # Mantém substantivos e substantivos próprios OU entidades LOC, ORG, PER
                 if (token.pos_ in ["NOUN", "PROPN"]) or (token.ent_type_ in ["LOC", "ORG", "PER"]):
                     lemma = token.lemma_.lower().strip()
-                    # Remove pontuação e stopwords
                     if lemma not in stopwords_pt and lemma not in string.punctuation:
-                        # Remove tokens muito curtos (ex.: "em", "ao", etc.)
                         if len(lemma) > 2:
                             tokens.append(lemma)
             textos_filtrados.append(" ".join(tokens))
@@ -62,7 +57,6 @@ def parse_history(history_str):
     return [item.strip() for item in history_str.split(',') if item.strip()]
 
 
-# Função para ler um CSV de treino usando pyarrow
 def read_train_csv_file(path):
     df = pd.read_csv(path, engine="pyarrow")
     df['history_list'] = df['history'].apply(parse_history)
@@ -71,9 +65,8 @@ def read_train_csv_file(path):
     return df
 
 
-# Função para processar os arquivos de treino em paralelo
 def process_train_files():
-    TRAIN_DIR = 'treino'
+    TRAIN_DIR = '../treino'
     TRAIN_FILES = [f"treino_parte{i}.csv" for i in range(1, 7)]
     dfs = []
     with ProcessPoolExecutor(max_workers=6) as executor:
@@ -82,7 +75,7 @@ def process_train_files():
             for file in TRAIN_FILES if os.path.exists(os.path.join(TRAIN_DIR, file))
         }
         for future in tqdm(as_completed(future_to_file), total=len(future_to_file), desc="Arquivos de Treino",
-                           bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [Elapsed: {elapsed}]"):
+                           bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [Elapsed: {elapsed}]"):
             try:
                 df = future.result()
                 dfs.append(df)
@@ -95,7 +88,6 @@ def process_train_files():
 
 
 def main():
-
     # ==============================================
     # Leitura e processamento dos arquivos de treino (paralelo)
     # ==============================================
@@ -107,12 +99,12 @@ def main():
     # Leitura e processamento dos arquivos de itens
     # ==============================================
 
-    ITENS_DIR = 'itens'
+    ITENS_DIR = '../itens'
     ITENS_FILES = [f"itens-parte{i}.csv" for i in range(1, 4)]
     itens_dfs = []
     col_names = ['Page', 'Url', 'Issued', 'Modified', 'Title', 'Body', 'Caption']
     for file in tqdm(ITENS_FILES, desc="Arquivos de Itens",
-                     bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [Elapsed: {elapsed}]"):
+                     bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [Elapsed: {elapsed}]"):
         path = os.path.join(ITENS_DIR, file)
         if os.path.exists(path):
             df = pd.read_csv(path, sep=',', header=None, names=col_names)
@@ -133,9 +125,10 @@ def main():
     reference_date = itens_df['Issued'].max()
     itens_df['age_days'] = (reference_date - itens_df['Issued']).dt.days
 
-    limite_dias = 120
+    limite_dias = 60
     itens_df = itens_df[itens_df['age_days'] <= limite_dias].copy()
     decay = 0.08
+    # Sem categorização pois via palavras-chave seria subjetiva; o ideal seria um campo de categoria.
 
     itens_df['recency_weight'] = np.exp(-decay * itens_df['age_days'])
     itens_df['text'] = itens_df[['Title', 'Body', 'Caption']].fillna('').agg(' '.join, axis=1)
@@ -148,12 +141,12 @@ def main():
     print("Treinando o vetor TF-IDF...")
     portuguese_stop = list(stopwords_pt)
     tfidf = TfidfVectorizer(
-        ngram_range=(1, 3),
-        min_df=2,
-        max_df=0.8,
         sublinear_tf=True,
-        stop_words=portuguese_stop,
-        max_features=5000,
+        ngram_range=(1, 2),
+        max_features=3000,
+        min_df=3,
+        max_df=0.75,
+        stop_words=portuguese_stop
     )
     start_time = time.time()
     tfidf_matrix = tfidf.fit_transform(itens_df['text_filtrado'])
@@ -165,11 +158,11 @@ def main():
     article_id_to_idx = {str(row['Page']): idx for idx, row in itens_df.iterrows()}
 
     # ==============================================
-    # Salvamento do modelo
+    # Salvamento do modelo TF-IDF
     # ==============================================
 
-    print("Salvando Modelo...")
-    output_path = os.path.join("app", "artifacts", "model.pkl")
+    print("Salvando Modelo TF-IDF...")
+    output_path = os.path.join("../app", "artifacts", "model.pkl")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'wb') as f:
         pickle.dump({
@@ -187,7 +180,6 @@ def main():
 
     print("==============================================")
     print("Gerando gráficos com matplotlib...")
-    print("Métricas do modelo:")
     print("Número de registros de treino:", len(train_df))
     print("Número de itens:", len(itens_df))
     print("Forma da matriz TF-IDF:", tfidf_matrix.shape)
@@ -235,19 +227,20 @@ def main():
 
     print("==============================================")
     print("Vocabulário ordenado por peso (IDF) abaixo")
+    print("==============================================")
     vocabulario = tfidf.get_feature_names_out()
     idf = tfidf.idf_
-    # Cria uma lista de tuplas (token, idf)
     vocab_idf = list(zip(vocabulario, idf))
-    # Ordena pelo idf (valores menores indicam tokens mais frequentes)
     vocab_idf_sorted = sorted(vocab_idf, key=lambda x: x[1])
     for token, weight in vocab_idf_sorted:
         print(f"{token}: {weight}")
+    print("==============================================")
     print("Vocabulário ordenado por peso (IDF) acima")
 
     print("==============================================")
     print("Treinamento e visualizações concluídos!")
     print("==============================================")
+
 
 if __name__ == '__main__':
     main()

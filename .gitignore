@@ -29,6 +29,7 @@ __init__.py
 # ===== Arquivos Gerados Automaticamente =====
 task_definition.json
 model.pkl
+model_lightfm.pkl
 
 # ===== Dados e Arquivos CSV =====
 itens/

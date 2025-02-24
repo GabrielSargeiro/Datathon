@@ -1,84 +1,106 @@
 from fastapi import APIRouter, HTTPException
 from app.models.data_models import RecommendationInput, RecommendationOutput
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
-from scipy.sparse import vstack
+import pandas as pd
 
 router = APIRouter(prefix="/recommendation", tags=["Recommendation"])
 
-# Esse valor será definido no main.py, onde o modelo é carregado
 model_data = None
-
-
-def get_user_profile(user_id: str):
-    """
-    Calcula o vetor de perfil do usuário com base nos artigos do seu histórico,
-    extraídos do train_df. Para cada artigo do histórico, busca o índice na matriz TF-IDF
-    (através de article_id_to_idx) e empilha os vetores para calcular a média.
-    Retorna o vetor médio (como matriz 1xN).
-    """
-    # Filtra os registros do usuário no train_df
-    user_rows = model_data['train_df'][model_data['train_df']['userId'] == user_id]
-    if user_rows.empty:
-        return None
-    vectors = []
-    for history in user_rows['history_list']:
-        for article in history:
-            idx = model_data['article_id_to_idx'].get(str(article))
-            if idx is not None:
-                vectors.append(model_data['tfidf_matrix'][idx])
-    if not vectors:
-        return None
-    # Empilha os vetores (sparse) e calcula a média
-    user_vector = vstack(vectors).mean(axis=0)
-    return user_vector
+lightfm_model_data = None
 
 
 @router.post("/", response_model=RecommendationOutput)
 def get_recommendations(input_data: RecommendationInput):
-    if model_data is None:
-        raise HTTPException(status_code=500, detail="Modelo não carregado")
-
-    # Tenta obter o perfil do usuário
-    user_vector = get_user_profile(input_data.user_id)
-
-    # Se o perfil não for encontrado, utiliza o histórico fornecido no input
-    if user_vector is None:
-        user_input = " ".join(map(str, input_data.history))
+    # Se o usuário não tem histórico, utiliza o modelo TF-IDF/PLN
+    if not input_data.history:
         try:
-            tfidf = model_data['tfidf']
-            user_vector = tfidf.transform([user_input])
+            recommendations = []
+            itens_df = model_data.get('itens_df')
+            if itens_df is None:
+                raise Exception("DataFrame de itens não encontrado no modelo TF-IDF")
+
+            # Ordena os itens pelo peso de recência (dos últimos 60 dias)
+            sorted_df = itens_df.sort_values(by='recency_weight', ascending=False)
+            for _, row in sorted_df.iterrows():
+                recommendations.append({
+                    'Page': row['Page'],
+                    'Title': row['Title'] if pd.notnull(row['Title']) else "Título indisponível"
+                })
+                if len(recommendations) >= 5:
+                    break
+
+            if not recommendations:
+                raise HTTPException(status_code=404, detail="Nenhuma recomendação encontrada")
+
+            return {"recommendations": recommendations}
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Erro ao processar histórico: {e}")
+            raise HTTPException(status_code=500, detail=f"Erro no modelo TF-IDF: {str(e)}")
 
-    # Converte o vetor para numpy array, caso seja np.matrix
-    user_vector = np.asarray(user_vector)
+    # Se houver histórico, utiliza o fluxo do LightFM
+    else:
+        if lightfm_model_data is None:
+            raise HTTPException(status_code=500, detail="Modelo LightFM não carregado")
 
-    # Calcula a similaridade de cosseno
-    similarities = cosine_similarity(user_vector, model_data['tfidf_matrix']).flatten()
+        # Obtém o conjunto de notícias atuais (últimos 60 dias)
+        valid_news = set(lightfm_model_data['itens_df']['Page'].astype(str).tolist())
+        # Filtra o histórico para manter apenas itens presentes nesse conjunto
+        filtered_history = [item for item in input_data.history if item in valid_news]
 
-    # Seleciona os índices dos 6 itens com maior similaridade
-    top_indices = np.argsort(-similarities)[:6]
+        user_mapping, dataset_item_mapping, _, _ = lightfm_model_data['lightfm_dataset'].mapping()
+        user_id = input_data.user_id
+        if user_id not in user_mapping:
+            raise HTTPException(status_code=404, detail="Usuário não encontrado no modelo LightFM")
 
-    # Se houver histórico enviado pelo usuário, evita recomendar itens já lidos
-    user_history = set(map(str, input_data.history))
-    recommendations = []
-    for idx in top_indices:
-        try:
-            article = model_data['itens_df'].iloc[idx]
-            article_id = str(article['Page'])
-            if article_id in user_history:
+        user_idx = user_mapping[user_id]
+        num_items = len(dataset_item_mapping)
+
+        scores = lightfm_model_data['lightfm_model'].predict(
+            user_idx,
+            np.arange(num_items),
+            item_features=lightfm_model_data['item_features']
+        )
+
+        # Expande para mais candidatos (top 20)
+        top_indices = np.argsort(-scores)[:20]
+        recommendations = []
+        inverse_item_mapping = {v: k for k, v in dataset_item_mapping.items()}
+        for idx in top_indices:
+            item_id = inverse_item_mapping.get(idx)
+            # Pula itens que não estejam entre as notícias atuais ou que já estejam no histórico filtrado
+            if item_id not in valid_news or item_id in filtered_history:
                 continue
-            recommendations.append({
-                'Page': article_id,
-                'Title': article['Title']
-            })
+            try:
+                item_row = \
+                lightfm_model_data['itens_df'][lightfm_model_data['itens_df']['Page'].astype(str) == item_id].iloc[0]
+                title = item_row['Title']
+            except Exception:
+                title = "Título indisponível"
+            recommendations.append({'Page': item_id, 'Title': title})
             if len(recommendations) >= 5:
                 break
-        except Exception:
-            continue
 
-    if not recommendations:
-        raise HTTPException(status_code=404, detail="Nenhuma recomendação encontrada")
+        # Se nenhuma recomendação válida foi gerada via LightFM, faz fallback para o modelo TF-IDF/PLN
+        if not recommendations:
+            try:
+                recommendations = []
+                itens_df = model_data.get('itens_df')
+                if itens_df is None:
+                    raise Exception("DataFrame de itens não encontrado no modelo TF-IDF")
+                sorted_df = itens_df.sort_values(by='recency_weight', ascending=False)
+                for _, row in sorted_df.iterrows():
+                    # Opcional: pular itens já no histórico
+                    if row['Page'] in filtered_history:
+                        continue
+                    recommendations.append({
+                        'Page': row['Page'],
+                        'Title': row['Title'] if pd.notnull(row['Title']) else "Título indisponível"
+                    })
+                    if len(recommendations) >= 5:
+                        break
+                if not recommendations:
+                    raise HTTPException(status_code=404, detail="Nenhuma recomendação encontrada")
+                return {"recommendations": recommendations}
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Erro no modelo TF-IDF fallback: {str(e)}")
 
-    return {"recommendations": recommendations}
+        return {"recommendations": recommendations}

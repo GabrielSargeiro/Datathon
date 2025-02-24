@@ -9,3 +9,6 @@ matplotlib==3.7.2
 tqdm==4.64.1
 spacy==3.5.3
 pyarrow==15.0.0
+scipy==1.14.1
+lightfm==1.17
+psutil

@@ -3,13 +3,23 @@ from joblib import load
 from app.config import Config
 from app.routers import recommendation
 import os
+import pickle
 
 app = FastAPI(title="Recommender System API", version=Config.API_VERSION)
 
-print("Carregando modelo a partir de:", os.path.abspath(Config.MODEL_PATH + "/model.pkl"))
+# Carrega o modelo TF-IDF
+print("Carregando modelo TF-IDF a partir de:", os.path.abspath(Config.MODEL_PATH + "/model.pkl"))
 model_data = load(Config.MODEL_PATH + "/model.pkl")
-
 recommendation.model_data = model_data
+
+# Carrega o modelo LightFM
+lightfm_model_path = os.path.join(Config.MODEL_PATH, "model_lightfm.pkl")
+print("Carregando modelo LightFM a partir de:", os.path.abspath(lightfm_model_path))
+with open(lightfm_model_path, 'rb') as f:
+    lightfm_model_data = pickle.load(f)
+recommendation.lightfm_model_data = lightfm_model_data
+
+
 
 app.include_router(recommendation.router)
 

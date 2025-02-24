@@ -1,7 +1,3 @@
-# Documentação Deploy - Datathon
-
-Este documento descreve o fluxo completo para construir, enviar e implantar a aplicação no AWS ECS (Fargate) utilizando o script build_and_push.sh.
-
 ## Requisitos do Ambiente Local
 
 Certifique-se de que sua máquina possua os seguintes itens instalados e configurados:
@@ -27,41 +23,20 @@ SUBNETS=subnet-0550b1c6bf59381af,subnet-03d0e2edab32be5aa,subnet-09a96f864be9c8d
 SECURITY_GROUPS=sg-0219fea6259c18ecd
 ```
 
-## Sumário
-
-1. [Build, Push e Deploy no AWS ECS](#build-push-e-deploy-no-aws-ecs)
-2. [Testando a API](#testando-a-api)
-3. [Conclusão](#conclusão)
-
 ---
 
-## Build, Push e Deploy no AWS ECS
+## Build, Push e Deploy no AWS
 
-O script `build_and_push.sh` executa todo o fluxo de automação, realizando as seguintes ações:
-
-- Carrega as variáveis do arquivo `.env`.
-- Faz login no AWS ECR.
-- Verifica/cria o repositório no ECR.
-- Constrói a imagem Docker utilizando o Dockerfile na pasta `docker/`.
-- Tagueia e envia (push) a imagem para o ECR.
-- Verifica/cria o cluster no ECS, gera uma nova Task Definition e registra uma nova revisão.
-- Atualiza ou recria o serviço ECS para usar a nova Task Definition.
-- (Opcional) Força a parada das tasks antigas e, após aguardar, exibe o IP público da nova task.
+O script `build_push_aws.sh` executa todo o fluxo de automação.
 
 ### Passos para executar:
 
 1. **Abra o Docker Desktop** e, em seguida, abra o Git Bash na pasta raiz do projeto.
 
-2. Torne o script executável (se necessário):
+2. Execute o script:
 
    ```bash
-   chmod +x build_and_push.sh
-   ```
-
-3. Execute o script:
-
-   ```bash
-   ./build_and_push.sh
+   ./build_push_aws.sh
    ```
 
 O script exibirá mensagens informando o progresso de cada etapa, incluindo a criação/atualização do serviço e a obtenção do IP público da task.
@@ -102,9 +77,3 @@ Após o deploy, aguarde alguns instantes até que a nova task esteja em execuç�
    ```
 
 ---
-
-## Conclusão
-
-1. Execute o script `build_and_push.sh` para construir a imagem Docker, enviá-la para o ECR e implantar a aplicação no AWS ECS.
-2. Verifique as mensagens do script para acompanhar a criação ou atualização da Task Definition e do serviço ECS.
-3. Obtenha o IP público da nova task e teste o endpoint da API.

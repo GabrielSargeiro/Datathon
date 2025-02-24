@@ -220,7 +220,7 @@ export MSYS_NO_PATHCONV=1
 
 LOG_GROUP="/ecs/datathon-task"
 
-echo "Iniciando busca do log 'Application startup complete' a cada 20 sec"
+echo "Iniciando busca do log 'Application startup complete' a cada 30 sec"
 MAX_ATTEMPTS=30
 attempt=1
 
@@ -237,12 +237,12 @@ while [ $attempt -le $MAX_ATTEMPTS ]; do
       break
   else
       echo "Tentativa $attempt: Aguardando Application startup..."
-      sleep 20
+      sleep 30
       attempt=$((attempt+1))
   fi
 done
 
 if [ $attempt -gt $MAX_ATTEMPTS ]; then
-    echo "Log 'Application startup complete' não encontrado após $(($MAX_ATTEMPTS * 20)) segundos."
+    echo "Log 'Application startup complete' não encontrado após $(($MAX_ATTEMPTS * 30)) segundos."
     exit 1
 fi
