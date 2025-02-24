@@ -21,6 +21,7 @@ stopwords_pt = set(stopwords.words('portuguese'))
 
 def filtrar_textos(textos):
     """Processa uma lista de textos e retorna uma lista de strings filtradas."""
+    weekdays = {"segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"}
     textos_filtrados = []
     with nlp.disable_pipes("ner", "parser"):
         for doc in tqdm(nlp.pipe(textos, batch_size=150, n_process=4),
@@ -29,10 +30,17 @@ def filtrar_textos(textos):
                         bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [Elapsed: {elapsed}]"):
             tokens = []
             for token in doc:
+                lemma = token.lemma_.lower().strip()
+                lemma_norm = lemma.replace('-', ' ')
+                if any(parte in weekdays for parte in lemma_norm.split()):
+                    continue
                 if (token.pos_ in ["NOUN", "PROPN"]) or (token.ent_type_ in ["LOC", "ORG", "PER"]):
-                    lemma = token.lemma_.lower().strip()
                     if lemma not in stopwords_pt and lemma not in string.punctuation:
-                        if len(lemma) > 2:
+                        if len(lemma) > 2 and not any(c.isdigit() for c in lemma):
+                            if lemma == "feira" and token.i > 0:
+                                prev_token = doc[token.i - 1].lemma_.lower().strip().replace('-', ' ')
+                                if any(parte in weekdays for parte in prev_token.split()):
+                                    continue
                             tokens.append(lemma)
             textos_filtrados.append(" ".join(tokens))
     return textos_filtrados
