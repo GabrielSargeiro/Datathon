@@ -18,7 +18,7 @@
     workflow -> trainModel.py
    ```
    
-2. **Executar run_docker.sh**, via Gitbash, que vai gerar o model_lightfm.pkl utilizando LightFM:
+2. **Executar build_lightfm.sh**, via Gitbash, que vai gerar o model_lightfm.pkl utilizando LightFM:
 
    ```bash
    ./build_lightfm.sh
