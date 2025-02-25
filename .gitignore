@@ -32,8 +32,7 @@ model.pkl
 model_lightfm.pkl
 
 # ===== Dados e Arquivos CSV =====
-itens/
-treino/
+*.csv
 
 # ===== Arquivos de Sistema =====
 .DS_Store
